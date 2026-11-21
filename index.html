@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Song Builder</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{--bg:#14161c;--card:#1e222b;--text:#f2f4f8;--muted:#9aa3b2;--line:#2c313d;--accent:#e0607e;
+--intro:#4aa3df;--verse:#e0a030;--hook:#e0607e;--bridge:#9a7be0;--outro:#4fb98a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f5f8;--card:#fff;--text:#1a1d24;--muted:#5d6676;--line:#d9dde5}}
+:root[data-theme="light"]{--bg:#f4f5f8;--card:#fff;--text:#1a1d24;--muted:#5d6676;--line:#d9dde5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;font-size:18px}
+main{max-width:640px;margin:0 auto;padding:16px 16px 110px}
+h1{font-size:24px;margin:8px 0 4px}
+h2{font-size:15px;color:var(--muted);font-weight:600;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.06em}
+.step,.small{color:var(--muted);font-size:15px;margin:4px 0}
+.view{display:none}.view.on{display:block}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--text);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.big{background:var(--c,var(--accent));color:#111;border-radius:14px;padding:16px 8px;font-weight:700;min-height:64px}
+.big.sel{outline:3px solid var(--text)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.card b{color:var(--c,var(--accent))}
+.btn{background:var(--line);border-radius:12px;padding:14px 18px;font-weight:600;min-height:48px}
+.btn.main{background:var(--accent);color:#111}
+.row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.song{display:flex;flex-direction:column;gap:10px}
+.empty{border:2px dashed var(--line);border-radius:14px;padding:24px;text-align:center;color:var(--muted)}
+.block{background:var(--card);border-left:10px solid var(--c);border-radius:14px;padding:12px 12px 12px 14px;display:flex;align-items:center;gap:10px}
+.info{flex:1}.name{font-weight:700;font-size:19px}
+.beats{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.bar{display:flex;gap:3px;padding-right:6px;border-right:1px solid var(--line)}.bar:last-child{border:0}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--c);opacity:.85}.dot:first-child{opacity:1;outline:2px solid var(--c);outline-offset:1px}
+.ctl{display:flex;gap:6px}
+.ctl button,.mini{width:44px;height:44px;border-radius:12px;background:var(--line);font-size:20px}
+.bars{display:flex;gap:6px;align-items:center;margin-top:8px;color:var(--muted);font-size:15px}
+.bars button{width:36px;height:36px;border-radius:10px;background:var(--line);font-size:18px}
+input[type=text]{flex:1;min-width:0;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px;font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{background:var(--card);border:2px solid var(--accent);border-radius:20px;padding:6px 6px 6px 14px;display:flex;gap:6px;align-items:center}
+.chip button{background:none;padding:4px 8px;font-size:16px;color:var(--muted)}
+.bub{background:var(--accent);color:#111;border-radius:20px;padding:10px 16px;font-weight:600}
+.cells{display:grid;grid-template-columns:50px repeat(16,1fr);gap:2px;align-items:center;font-size:13px;color:var(--muted);margin-top:8px}
+.cell{aspect-ratio:1;border-radius:4px;background:var(--line)}.cell.hit{background:var(--c)}.cell.now{outline:2px solid var(--text)}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-top:8px}
+.four div{background:var(--line);border-radius:10px;padding:8px 2px;font-weight:700}.four span{display:block;font-size:13px;color:var(--muted)}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px}
+summary{font-weight:700;cursor:pointer}
+label{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:16px}
+input[type=range]{flex:1;height:32px}
+audio{width:100%;margin-top:8px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px))}
+nav button{background:none;padding:6px 0;font-size:12px;color:var(--muted);border-radius:10px}
+nav button span{display:block;font-size:22px}
+nav button.on{color:var(--text);background:var(--line)}
+</style>
+</head>
+<body>
+<main>
+<h1>🎤 Song Builder</h1>
+
+<section class="view on" id="v-build">
+<p class="step">Build your song order</p>
+<h2>1. Tap a block to add it</h2>
+<div class="grid" id="palette"></div>
+<div class="card" id="tip" style="margin-top:12px">Tap a block to see what it does.</div>
+<h2>2. Your song</h2>
+<div class="song" id="song"></div>
+<p class="small" id="total"></p>
+<div class="row"><button class="btn" id="clear">Start again</button></div>
+</section>
+
+<section class="view" id="v-ideas">
+<p class="step">Pick a topic. Add words or short ideas.</p>
+<div class="grid" id="topics"></div>
+<div id="topicBox"></div>
+</section>
+
+<section class="view" id="v-rhyme">
+<p class="step">Type a word to find rhymes.</p>
+<div class="row"><input type="text" id="rw" placeholder="e.g. best" autocapitalize="none" autocomplete="off"><button class="btn main" id="rgo">Find</button></div>
+<div class="chips" id="rres"></div>
+<p class="small" id="rmsg"></p>
+<h2>My rhyme list (tap to remove)</h2>
+<div class="chips" id="rlist"></div>
+</section>
+
+<section class="view" id="v-beats">
+<p class="step">How beats and rap work together</p>
+<div class="card"><b>1. The beat</b><br>A steady pulse, like a heartbeat. It keeps going the same speed.</div>
+<div class="card"><b>2. The bar</b><br>One bar is 4 beats. Count: 1 2 3 4, then start again.</div>
+<div class="card"><b>3. Words land on the beat</b><br>Each word or sound fits a beat.
+<div class="four"><div>I<span>1</span></div><div>see<span>2</span></div><div>my<span>3</span></div><div>friends<span>4</span></div></div></div>
+<div class="card"><b>4. Kick and snare</b><br>Kick is a low boom. Snare is a sharp clap. Hats tick between them. Together they make the groove.
+<div class="cells" id="cells"></div>
+<div class="row"><button class="btn main" data-beat>▶ Play soft beat</button></div></div>
+<div class="card"><b>5. Speed</b><br>Speed is counted in BPM (beats per minute). Slow is about 70. Medium is about 90. Fast is 120 or more.</div>
+</section>
+
+<section class="view" id="v-rec">
+<p class="step">Record yourself. Nothing plays until you tap.</p>
+<div class="card">
+<div class="row" style="margin:0"><button class="btn" data-beat>▶ Play beat</button></div>
+<label>Speed <input type="range" id="bpm" min="70" max="110" value="85"> <span id="bpmv">85</span></label>
+<label>Volume <input type="range" id="vol" min="0" max="100" value="40"></label>
+<label><input type="checkbox" id="withBeat" checked> Play beat while I record</label>
+<p class="small">Tip: wear headphones so the mic only hears you.</p></div>
+<div class="row"><button class="btn main" id="recBtn">● Record</button><span class="small" id="recMsg"></span></div>
+<h2>My takes</h2>
+<div id="takes"><div class="empty">No takes yet.</div></div>
+<p class="small">Takes are kept only while this page stays open.</p>
+</section>
+
+<section class="view" id="v-tips">
+<p class="step">Tap a card to open it.</p>
+<details><summary>🧱 Pick one theme</summary><p>Choose one idea for the song. Example: “My mum is my hero.” Keep each verse about that idea.</p></details>
+<details><summary>📖 Tell a story in 3 steps</summary><p>1. Where am I?<br>2. What do I see?<br>3. How do I feel?<br>Use one step for each part of your verse.</p></details>
+<details><summary>🔗 Simile</summary><p>Compare two things with “like” or “as”.<br>Example: “Fast like a train.”</p></details>
+<details><summary>✨ Metaphor</summary><p>Say one thing IS another thing.<br>Example: “My street is a stage.”</p></details>
+<details><summary>💥 Punchline</summary><p>A surprise at the end of a line.<br>Example: “I’m not asleep, I’m just resting my eyes for 12 hours.”</p></details>
+<details><summary>🎯 Hook first</summary><p>Write the catchy part first. Keep it short. Make it easy to say again and again.</p></details>
+<details><summary>🏁 End on a good note</summary><p>Finish with a line that feels like a full stop. Hopeful lines work well.</p></details>
+</section>
+</main>
+
+<nav id="nav">
+<button data-v="build" class="on"><span>🧱</span>Build</button>
+<button data-v="ideas"><span>💡</span>Ideas</button>
+<button data-v="rhyme"><span>🔤</span>Rhymes</button>
+<button data-v="beats"><span>🥁</span>Beats</button>
+<button data-v="rec"><span>🎙️</span>Record</button>
+<button data-v="tips"><span>⭐</span>Tips</button>
+</nav>
+
+<script>
+var $=function(s){return document.querySelector(s)};
+var TYPES={intro:{n:"Intro",c:"var(--intro)",bars:4,t:"Starts the song. Sets the mood. Short."},
+verse:{n:"Verse",c:"var(--verse)",bars:16,t:"Where the story goes. Most of your words go here."},
+hook:{n:"Hook",c:"var(--hook)",bars:8,t:"The catchy part. It comes back again and again."},
+bridge:{n:"Bridge",c:"var(--bridge)",bars:8,t:"A change. Something new before the last part."},
+outro:{n:"Outro",c:"var(--outro)",bars:4,t:"Ends the song. Wraps it up."}};
+var S={song:[],ideas:{},words:[]};
+try{var o=JSON.parse(localStorage.getItem("song")||"[]");if(Array.isArray(o))S.song=o;var x=JSON.parse(localStorage.getItem("sb2")||"null");if(x&&typeof x==="object"){S.song=Array.isArray(x.song)?x.song:S.song;S.ideas=x.ideas||{};S.words=Array.isArray(x.words)?x.words:[]}}catch(e){}
+S.song=S.song.filter(function(b){return b&&TYPES[b.k]});
+function save(){try{localStorage.setItem("sb2",JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+/* nav */
+function show(v){document.querySelectorAll(".view").forEach(function(e){e.classList.toggle("on",e.id==="v-"+v)});
+document.querySelectorAll("nav button").forEach(function(b){b.classList.toggle("on",b.dataset.v===v)});window.scrollTo(0,0)}
+document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){show(b.dataset.v)}});
+
+/* build */
+function tip(k){var t=TYPES[k],e=$("#tip");e.style.setProperty("--c",t.c);e.innerHTML="<b>"+t.n+"</b> – "+t.t}
+function renderSong(){var el=$("#song");el.innerHTML="";
+if(!S.song.length)el.innerHTML='<div class="empty">Your song is empty.<br>Tap a block above.</div>';
+S.song.forEach(function(b,i){var t=TYPES[b.k],d=document.createElement("div");d.className="block";d.style.setProperty("--c",t.c);
+var bars="";for(var j=0;j<b.b;j++)bars+='<span class="bar">'+"<span class='dot'></span>".repeat(4)+"</span>";
+d.innerHTML='<div class="info"><div class="name">'+t.n+'</div><div class="bars"><button aria-label="Fewer bars">−</button><span>'+b.b+' bars</span><button aria-label="More bars">+</button></div><div class="beats">'+bars+'</div></div><div class="ctl"><button aria-label="Move up">↑</button><button aria-label="Move down">↓</button><button aria-label="Remove" style="color:#e0607e">✕</button></div>';
+var q=d.querySelectorAll("button");
+q[0].onclick=function(){if(b.b>1){b.b--;save();renderSong()}};
+q[1].onclick=function(){if(b.b<32){b.b++;save();renderSong()}};
+q[2].onclick=function(){if(i>0){S.song.splice(i-1,0,S.song.splice(i,1)[0]);save();renderSong()}};
+q[3].onclick=function(){if(i<S.song.length-1){S.song.splice(i+1,0,S.song.splice(i,1)[0]);save();renderSong()}};
+q[4].onclick=function(){S.song.splice(i,1);save();renderSong()};
+d.querySelector(".name").onclick=function(){tip(b.k)};el.appendChild(d)});
+var n=S.song.reduce(function(a,b){return a+b.b},0);$("#total").textContent=S.song.length?"Total: "+n+" bars":""}
+Object.keys(TYPES).forEach(function(k){var t=TYPES[k],b=document.createElement("button");b.className="big";b.style.setProperty("--c",t.c);b.textContent="+ "+t.n;
+b.onclick=function(){S.song.push({k:k,b:t.bars});save();tip(k);renderSong()};$("#palette").appendChild(b)});
+$("#clear").onclick=function(){S.song=[];save();renderSong()};
+
+/* ideas */
+var TOPICS=[["🏠","Home","What do you see at home?"],["👫","Friends","Who do you chill with?"],["👪","Family","Who inspires you?"],["📍","My area","Where do you feel safe?"],["💭","Feelings","How do you feel today?"],["🏫","School","What happens in your day?"]];
+var cur=null;
+TOPICS.forEach(function(t){var b=document.createElement("button");b.className="big";b.innerHTML='<span style="font-size:26px">'+t[0]+'</span><br>'+t[1];
+b.onclick=function(){cur=t;renderTopic()};$("#topics").appendChild(b)});
+function renderTopic(){document.querySelectorAll("#topics .big").forEach(function(b){b.classList.toggle("sel",cur&&b.textContent.indexOf(cur[1])>-1)});
+var box=$("#topicBox");if(!cur){box.innerHTML="";return}
+var list=S.ideas[cur[1]]||[];
+box.innerHTML='<h2>'+cur[0]+' '+cur[1]+'</h2><div class="card">'+cur[2]+'</div><div class="row"><input type="text" id="iw" placeholder="Add a word or idea"><button class="btn main" id="iadd">Add</button></div><div class="chips" id="ichips"></div><p class="small">Tap an idea to find rhymes. Tap ✕ to remove.</p>';
+list.forEach(function(w,i){var c=document.createElement("div");c.className="chip";c.innerHTML='<button style="color:inherit;font-size:17px;padding:4px"></button><button aria-label="Remove">✕</button>';
+c.firstChild.textContent=w;c.firstChild.onclick=function(){$("#rw").value=w.split(" ").pop();show("rhyme");doRhyme()};
+c.lastChild.onclick=function(){list.splice(i,1);save();renderTopic()};$("#ichips").appendChild(c)});
+function add(){var v=$("#iw").value.trim();if(!v)return;(S.ideas[cur[1]]=S.ideas[cur[1]]||[]).push(v);save();renderTopic();$("#iw").focus()}
+$("#iadd").onclick=add;$("#iw").onkeydown=function(e){if(e.key==="Enter")add()}}
+
+/* rhymes */
+var G=("best west rest test chest guest quest nest vest|day way say play stay okay today away|streets beats feet meet sweet heat seat repeat|time rhyme line mine shine sign fine climb|town down crown round sound found ground around|mind find kind behind blind|heart start part smart art apart|home phone alone zone stone known own|light night fight bright right sight tonight|school cool rule fool tool pool|ride side wide pride inside guide|smile while mile style file|know show flow go grow slow glow|care there air share where dare|friend end send bend pretend|fire higher desire wire tired|life knife wife strife|strong long song wrong along|dream team seem stream theme|real feel deal heal steel|street feet beat meet|mate great late wait state fate|hand land stand band understand|hope cope rope|bird heard word|mum come some drum|fun run sun done one").split("|").map(function(s){return s.split(" ")});
+function suf(a,b){var n=0;while(n<a.length&&n<b.length&&a[a.length-1-n]===b[b.length-1-n])n++;return n}
+function find(w){var best=null,bs=0;G.forEach(function(g){if(g.indexOf(w)>-1){best=g;bs=99}});
+if(!best)G.forEach(function(g){g.forEach(function(x){var s=suf(w,x);if(s>bs&&s>=2){bs=s;best=g}})});
+return best?best.filter(function(x){return x!==w}):[]}
+function doRhyme(){var w=$("#rw").value.trim().toLowerCase(),r=$("#rres");r.innerHTML="";if(!w)return;
+var res=find(w);$("#rmsg").textContent=res.length?"Tap a word to save it.":"No match yet. Try a simpler word.";
+res.forEach(function(x){var b=document.createElement("button");b.className="bub";b.textContent=x;b.onclick=function(){if(S.words.indexOf(x)<0){S.words.push(x);save();renderWords()}};r.appendChild(b)})}
+function renderWords(){var l=$("#rlist");l.innerHTML=S.words.length?"":'<span class="small">Nothing saved yet.</span>';
+S.words.forEach(function(w,i){var b=document.createElement("button");b.className="chip";b.textContent=w;b.style.paddingRight="14px";b.onclick=function(){S.words.splice(i,1);save();renderWords()};l.appendChild(b)})}
+$("#rgo").onclick=doRhyme;$("#rw").onkeydown=function(e){if(e.key==="Enter")doRhyme()};
+
+/* beat engine (quiet, starts only on tap) */
+var ac,master,timer,stepN=0,nextT=0,playing=false,K=[0,7,10],SN=[4,12];
+var cells=$("#cells");
+[["Kick","var(--intro)",K],["Snare","var(--hook)",SN],["Hat","var(--verse)",[0,2,4,6,8,10,12,14]]].forEach(function(r){
+var l=document.createElement("span");l.textContent=r[0];cells.appendChild(l);
+for(var i=0;i<16;i++){var c=document.createElement("span");c.className="cell"+(r[2].indexOf(i)>-1?" hit":"");c.style.setProperty("--c",r[1]);c.dataset.s=i;cells.appendChild(c)}});
+function setVol(){if(master)master.gain.value=(+$("#vol").value/100)*0.35}
+function noise(t,dur,freq,g){var n=ac.sampleRate*dur,b=ac.createBuffer(1,n,ac.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=Math.random()*2-1;
+var s=ac.createBufferSource();s.buffer=b;var f=ac.createBiquadFilter();f.type="highpass";f.frequency.value=freq;var gn=ac.createGain();gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(gn);gn.connect(master);s.start(t)}
+function kick(t){var o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(45,t+.15);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(master);o.start(t);o.stop(t+.22)}
+function sched(){var sd=60/(+$("#bpm").value)/4;while(nextT<ac.currentTime+.1){var s=stepN%16,t=nextT;
+if(K.indexOf(s)>-1)kick(t);if(SN.indexOf(s)>-1)noise(t,.12,1500,.4);if(s%2===0)noise(t,.04,7000,.12);
+(function(s,t){setTimeout(function(){document.querySelectorAll(".cell").forEach(function(c){c.classList.toggle("now",+c.dataset.s===s)})},Math.max(0,(t-ac.currentTime)*1000))})(s,t);
+nextT+=sd;stepN++}}
+function startBeat(){if(playing)return;var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+if(!ac){ac=new AC();master=ac.createGain();master.connect(ac.destination)}
+ac.resume();master.gain.setValueAtTime(0,ac.currentTime);master.gain.linearRampToValueAtTime((+$("#vol").value/100)*0.35,ac.currentTime+.4);
+stepN=0;nextT=ac.currentTime+.1;timer=setInterval(sched,25);playing=true;lab()}
+function stopBeat(){if(!playing)return;clearInterval(timer);playing=false;master.gain.cancelScheduledValues(ac.currentTime);master.gain.setValueAtTime(master.gain.value,ac.currentTime);master.gain.linearRampToValueAtTime(0,ac.currentTime+.2);
+document.querySelectorAll(".cell").forEach(function(c){c.classList.remove("now")});lab()}
+function lab(){document.querySelectorAll("[data-beat]").forEach(function(b){b.textContent=playing?"■ Stop beat":"▶ Play beat"})}
+document.querySelectorAll("[data-beat]").forEach(function(b){b.onclick=function(){playing?stopBeat():startBeat()}});
+$("#vol").oninput=setVol;$("#bpm").oninput=function(){$("#bpmv").textContent=this.value};
+lab();
+
+/* record */
+var rec=null,chunks=[],stream=null,takes=0;
+$("#recBtn").onclick=function(){
+if(rec&&rec.state==="recording"){rec.stop();return}
+if(!navigator.mediaDevices||!window.MediaRecorder){$("#recMsg").textContent="Recording isn’t supported in this browser.";return}
+navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){stream=s;chunks=[];rec=new MediaRecorder(s);
+rec.ondataavailable=function(e){if(e.data.size)chunks.push(e.data)};
+rec.onstop=function(){stream.getTracks().forEach(function(t){t.stop()});stopBeat();var b=new Blob(chunks,{type:rec.mimeType||"audio/mp4"});takes++;
+var t=$("#takes");if(takes===1)t.innerHTML="";var d=document.createElement("div");d.className="card";d.innerHTML="<b>Take "+takes+"</b>";
+var a=document.createElement("audio");a.controls=true;a.src=URL.createObjectURL(b);d.appendChild(a);t.insertBefore(d,t.firstChild);
+$("#recBtn").textContent="● Record";$("#recMsg").textContent="Saved as Take "+takes+"."};
+if($("#withBeat").checked)startBeat();rec.start();$("#recBtn").textContent="■ Stop";$("#recMsg").textContent="Recording…"})
+.catch(function(){$("#recMsg").textContent="Couldn’t use the microphone. Allow it in Safari settings."})};
+
+renderSong();renderWords();
+</script>
+</body>
+</html>
